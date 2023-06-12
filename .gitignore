@@ -143,3 +143,7 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,gradle,java
+
+**/front-end/node_modules/**
+**/front-end/static/**
+
