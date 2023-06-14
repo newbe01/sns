@@ -1,6 +1,5 @@
 package com.example.sns.model.entity;
 
-import com.example.sns.model.UserRole;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.SQLDelete;
@@ -10,27 +9,28 @@ import javax.persistence.*;
 import java.sql.Timestamp;
 import java.time.Instant;
 
-@Setter
+
 @Getter
-@Table(name = "\"user\"")
+@Setter
+@SQLDelete(sql = "UPDATED \"post\" SET deleted_at = NOW() where id =?")
 @Where(clause = "deleted_at is NULL")
-@SQLDelete(sql = "UPDATE \"user\" SET deleted_at = NOW() where id = ?")
+@Table(name = "\"post\"")
 @Entity
-public class UserEntity {
+public class PostEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "user_name")
-    private String userName;
+    @Column(name = "title")
+    private String title;
 
-    @Column(name = "password")
-    private String password;
+    @Column(name = "body", columnDefinition = "TEXT")
+    private String body;
 
-    @Column(name = "role")
-    @Enumerated(EnumType.STRING)
-    private UserRole role = UserRole.USER;
+    @ManyToOne
+    @JoinColumn(name = "user_Id")
+    private UserEntity user;
 
     @Column(name = "register_at")
     private Timestamp registerAt;
@@ -51,11 +51,5 @@ public class UserEntity {
         this.updatedAt = Timestamp.from(Instant.now());
     }
 
-    public static UserEntity of(String userName, String password) {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setUserName(userName);
-        userEntity.setPassword(password);
-        return userEntity;
-    }
 
 }
