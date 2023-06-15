@@ -25,8 +25,13 @@ public class UserService {
     @Value("${jwt.token-expired-time-ms}")
     private Long expiredTimeMs;
 
-    @Transactional
+    public User loadUserByUserName(String userName) {
+        return userEntityRepository.findByUserName(userName).map(User::fromEntity).orElseThrow(
+                () -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not foundedasf", userName))
+        );
+    }
 
+    @Transactional
     public User join(String userName, String password) {
 
         userEntityRepository.findByUserName(userName).ifPresent(it -> {
