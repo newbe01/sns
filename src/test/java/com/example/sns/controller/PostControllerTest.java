@@ -1,5 +1,6 @@
 package com.example.sns.controller;
 
+import com.example.sns.controller.request.PostCommentRequest;
 import com.example.sns.controller.request.PostCreateRequest;
 import com.example.sns.controller.request.PostModifyRequest;
 import com.example.sns.exception.ErrorCode;
@@ -250,6 +251,38 @@ public class PostControllerTest {
 
         mockMvc.perform(post("/api/v1/posts/1/likes")
                         .contentType(MediaType.APPLICATION_JSON)
+                ).andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser
+    void post_comment() throws Exception {
+        mockMvc.perform(post("/api/v1/posts/1/comments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new PostCommentRequest("comment")))
+                ).andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void post_commentWithNoLogin() throws Exception {
+        mockMvc.perform(post("/api/v1/posts/1/comments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new PostCommentRequest("comment")))
+                ).andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser
+    void post_commentWithNoPosts() throws Exception {
+        doThrow(new SnsApplicationException(ErrorCode.POST_NOT_FOUND)).when(postService).comment(any(), any(), any());
+
+        mockMvc.perform(post("/api/v1/posts/1/comments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new PostCommentRequest("comment")))
                 ).andDo(print())
                 .andExpect(status().isNotFound());
     }
