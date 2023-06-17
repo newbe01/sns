@@ -4,8 +4,10 @@ import com.example.sns.exception.ErrorCode;
 import com.example.sns.exception.SnsApplicationException;
 import com.example.sns.fixture.PostEntityFixture;
 import com.example.sns.fixture.UserEntityFixture;
+import com.example.sns.model.entity.LikeEntity;
 import com.example.sns.model.entity.PostEntity;
 import com.example.sns.model.entity.UserEntity;
+import com.example.sns.repository.LikeEntityRepository;
 import com.example.sns.repository.PostEntityRepository;
 import com.example.sns.repository.UserEntityRepository;
 import org.junit.jupiter.api.Assertions;
@@ -33,6 +35,9 @@ public class PostServiceTest {
 
     @MockBean
     private UserEntityRepository userEntityRepository;
+
+    @MockBean
+    private LikeEntityRepository likeEntityRepository;
 
     @Test
     void postCreateSuccess() {
@@ -187,6 +192,55 @@ public class PostServiceTest {
         when(userEntityRepository.findByUserName(any())).thenReturn(Optional.of(user));
         when(postEntityRepository.findAllByUser(user, pageable)).thenReturn(Page.empty());
         Assertions.assertDoesNotThrow(() -> postService.my("", pageable));
+    }
+
+    @Test
+    void postLike() {
+        String userName = "userName";
+        Integer postId = 1;
+
+        PostEntity postEntity = PostEntityFixture.get(userName, postId, 1);
+        UserEntity userEntity = postEntity.getUser();
+
+        when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(userEntity));
+        when(postEntityRepository.findById(postId)).thenReturn(Optional.of(postEntity));
+
+        Assertions.assertDoesNotThrow(() -> postService.like(postId, userEntity.getUserName()));
+    }
+
+    @Test
+    void postLikeWithNoPosts() {
+        String userName = "userName";
+        Integer postId = 1;
+
+        PostEntity postEntity = PostEntityFixture.get(userName, postId, 1);
+        UserEntity userEntity = postEntity.getUser();
+
+        when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(userEntity));
+        when(postEntityRepository.findById(postId)).thenReturn(Optional.empty());
+
+        SnsApplicationException e = Assertions.assertThrows(
+                SnsApplicationException.class, () -> postService.like(1, userName)
+        );
+        Assertions.assertEquals(ErrorCode.POST_NOT_FOUND, e.getErrorCode());
+    }
+
+    @Test
+    void postAlreadyLiked() {
+        String userName = "userName";
+        Integer postId = 1;
+
+        PostEntity postEntity = PostEntityFixture.get(userName, postId, 1);
+        UserEntity userEntity = postEntity.getUser();
+
+        when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(userEntity));
+        when(postEntityRepository.findById(postId)).thenReturn(Optional.of(postEntity));
+        when(likeEntityRepository.findByUserAndPost(userEntity, postEntity)).thenReturn(Optional.of(new LikeEntity()));
+
+        SnsApplicationException e = Assertions.assertThrows(
+                SnsApplicationException.class, () -> postService.like(postEntity.getId(), userName)
+        );
+        Assertions.assertEquals(ErrorCode.ALREADY_LIKED, e.getErrorCode());
     }
 
 }
