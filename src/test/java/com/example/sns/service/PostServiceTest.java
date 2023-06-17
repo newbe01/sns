@@ -189,4 +189,29 @@ public class PostServiceTest {
         Assertions.assertDoesNotThrow(() -> postService.my("", pageable));
     }
 
+    @Test
+    void postLike() {
+
+        Integer postId = 1;
+        UserEntity user = mock(UserEntity.class);
+        Assertions.assertDoesNotThrow(() -> postService.like(postId, user.getUserName()));
+    }
+
+    @Test
+    void postLikeWithNoPosts() {
+        String userName = "userName";
+        Integer postId = 1;
+
+        PostEntity postEntity = PostEntityFixture.get(userName, postId, 1);
+        UserEntity userEntity = postEntity.getUser();
+
+        when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(userEntity));
+        when(postEntityRepository.findById(postId)).thenReturn(Optional.empty());
+
+        SnsApplicationException e = Assertions.assertThrows(
+                SnsApplicationException.class, () -> postService.like(1, userName)
+        );
+        Assertions.assertEquals(ErrorCode.POST_NOT_FOUND, e.getErrorCode());
+    }
+
 }
