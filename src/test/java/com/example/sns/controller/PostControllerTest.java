@@ -243,7 +243,7 @@ public class PostControllerTest {
     }
 
     @Test
-    @WithAnonymousUser
+    @WithMockUser
     void post_likeWithNoPosts() throws Exception {
 
         doThrow(new SnsApplicationException(ErrorCode.POST_NOT_FOUND)).when(postService).like(any(), any());
