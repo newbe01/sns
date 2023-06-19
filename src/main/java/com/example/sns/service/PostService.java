@@ -100,7 +100,7 @@ public class PostService {
 
     }
 
-    public int likeCount(Integer postId) {
+    public long likeCount(Integer postId) {
 
         PostEntity postEntity = getPostOrException(postId);
 
