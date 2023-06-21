@@ -23,6 +23,7 @@ public class PostService {
     private final LikeEntityRepository likeEntityRepository;
     private final CommentEntityRepository commentEntityRepository;
     private final AlarmEntityRepository alarmEntityRepository;
+    private final AlarmService alarmService;
 
     @Transactional
 
@@ -93,13 +94,14 @@ public class PostService {
 
         likeEntityRepository.save(LikeEntity.of(userEntity, postEntity));
 
-        alarmEntityRepository.save(
+        AlarmEntity entity = alarmEntityRepository.save(
                 AlarmEntity.of(
                         postEntity.getUser(),
                         AlarmType.NEW_LIKE_ON_POST,
                         new AlarmArgs(userEntity.getId(), postEntity.getId())
                 )
         );
+        alarmService.send(entity.getId(), postEntity.getId());
 
     }
 
@@ -118,13 +120,14 @@ public class PostService {
 
         commentEntityRepository.save(CommentEntity.of(userEntity, postEntity, comment));
 
-        alarmEntityRepository.save(
+        AlarmEntity entity = alarmEntityRepository.save(
                 AlarmEntity.of(
                         postEntity.getUser(),
                         AlarmType.NEW_COMMENT_ON_POST,
                         new AlarmArgs(userEntity.getId(), postEntity.getId())
                 )
         );
+        alarmService.send(entity.getId(), postEntity.getId());
 
     }
 
