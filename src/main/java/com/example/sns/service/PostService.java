@@ -101,7 +101,7 @@ public class PostService {
                         new AlarmArgs(userEntity.getId(), postEntity.getId())
                 )
         );
-        alarmService.send(entity.getId(), postEntity.getId());
+        alarmService.send(entity.getId(), postEntity.getUser().getId());
 
     }
 
@@ -127,7 +127,7 @@ public class PostService {
                         new AlarmArgs(userEntity.getId(), postEntity.getId())
                 )
         );
-        alarmService.send(entity.getId(), postEntity.getId());
+        alarmService.send(entity.getId(), postEntity.getUser().getId());
 
     }
 

@@ -16,8 +16,8 @@ public class EmitterRepository {
 
     public SseEmitter save(Integer userId, SseEmitter sseEmitter) {
         final String key = getKey(userId);
-        emitterMap.put(key, sseEmitter);
         log.info("Set sseEmitter {}", userId);
+        emitterMap.put(key, sseEmitter);
 
         return sseEmitter;
     }
