@@ -3,6 +3,7 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
+
 spring:
   jpa:
     defer-datasource-initialization: true
@@ -21,8 +22,30 @@ spring:
       maximum-pool-size: 4
   redis:
     url: redis://localhost:6379
+  kafka:
+    topic:
+      alarm: alarmTest
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: alarm
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.IntegerDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    listener:
+      ack-mode: manual
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        enable.idempotence: false
+
 
 jwt:
   secret-key: newbe01_4study.sns-application-2023.secret_key
   # 30 days
   token-expired-time-ms: 2592000000
+server:
+  port: 8081
